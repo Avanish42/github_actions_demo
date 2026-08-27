@@ -1,5 +1,5 @@
-def add(a,b):
-    return a+b
+from src.calculator import add
 
 
-print("SUM is : ",add(10,20))
+if __name__ == "__main__":
+    print("SUM is : ", add(10, 20))
