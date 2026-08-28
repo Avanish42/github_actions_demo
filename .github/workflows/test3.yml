@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      BASE_URL: ${{ secrets.BASE_URL }}
+      BASE_URL: ${{ vars.BASE_URL }}
       USER_DATA: ${{ secrets.USER_DATA }}
 
     steps:
