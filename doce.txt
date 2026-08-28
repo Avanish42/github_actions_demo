@@ -1,0 +1,7 @@
+{
+  "Username": "Admin",
+  "Password": "admin123",
+  "Role" : "Sandbox"
+}
+
+https://opensource-demo.orangehrmlive.com/web/index.php/auth/login
