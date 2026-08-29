@@ -39,6 +39,7 @@ def _load_user_data():
 def config():
     """Saara config ek jagah."""
     user = _load_user_data()
+    print(f"User data: {user}")
 
     return {
         "base_url": os.environ["BASE_URL"],

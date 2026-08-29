@@ -1,10 +1,17 @@
-name: test3
+name: Selenium Tests
 
 on:
   workflow_dispatch:
-
-permissions:
-  contents: read
+    inputs:
+      target_env:
+        description: 'Kis environment pe chalana hai'
+        type: choice
+        options: [sandbox, UAT]
+        # branche: [main, dev]
+        default: sandbox
+        required: true
+  schedule:
+    - cron: "30 2 * * *"
 
 jobs:
   test:
