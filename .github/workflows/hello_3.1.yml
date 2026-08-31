@@ -27,7 +27,7 @@ jobs:
 
         steps:
             - name: Echo Name 
-              run: echo "Avanish"
+              run: echo "  My name $(inputs.yourname) -  $($inputs.gretting)"
 
             - name: Echo Time 
               run: echo "Current time in IST $(date)" 
