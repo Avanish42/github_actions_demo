@@ -1,5 +1,6 @@
 # git rm -r --cached reports
 reports/
+yml_checker/
 venv/
 .env
 __pycache__/
