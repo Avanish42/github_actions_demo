@@ -1,8 +1,24 @@
 name: Hello World 
 
 on: 
-    workflow_dispatch 
-env:
+    workflow_dispatch:
+        inputs:
+         your_name:
+             description : "Enter your name"
+             required: true
+             default: 'Avanish'
+             type: string
+         gretting:
+             description: "Select your welcome msg"
+             required: true
+             default: 'Hi' 
+             type: choice
+             options:
+               - 'Hi'
+               - 'hello'
+               - 'Ram Ram'
+               
+env:    
   TZ: 'Asia/Kolkata'
 
 jobs: 
