@@ -1,17 +1,17 @@
-name : Hello World 
+name: Hello World 
 
-on : 
+on: 
     workflow_dispatch 
 
-jobs : 
-    MyJobs :
-        runs-on : ubuntu-latest
+jobs: 
+    MyJobs:
+        runs-on: ubuntu-latest
 
-        steps :
-            - name : Echo Name 
-              run : echo "Avanish"
+        steps:
+            - name: Echo Name 
+              run: echo "Avanish"
 
-            - name : Echo Time 
+            - name: Echo Time 
               env:
-                TZ : 'Asia/Kolkata'
-              run : echo "Current time in IST $(date)" 
+                TZ: 'Asia/Kolkata'
+              run: echo "Current time in IST $(date)" 
