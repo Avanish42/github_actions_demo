@@ -1,6 +1,11 @@
 name: Hello World 
 
 on: 
+    push:
+      branches: 
+       - main
+    schedule:
+      - cron: '30 4 * * *'    
     workflow_dispatch:
         inputs:
          your_name:
