@@ -33,3 +33,7 @@ jobs:
 
             - name: Echo Time 
               run: echo "Current time in IST $(date)" 
+
+            - name: Print Triggered Event
+              run: |
+                  echo "The event that triggered this workflow is: ${{ github.event_name }}"
