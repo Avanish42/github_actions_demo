@@ -27,7 +27,9 @@ jobs:
 
         steps:
             - name: Echo Name 
-              run: echo "  My name $(inputs.yourname) -  $($inputs.gretting)"
+              run: |
+               echo "Selected Greeting: ${{ github.event.inputs.gretting }}"
+               echo "Entered Name: ${{ github.event.inputs.your_name }}"
 
             - name: Echo Time 
               run: echo "Current time in IST $(date)" 
