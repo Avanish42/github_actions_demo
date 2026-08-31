@@ -2,6 +2,8 @@ name: Hello World
 
 on: 
     workflow_dispatch 
+env:
+  TZ: 'Asia/Kolkata'
 
 jobs: 
     MyJobs:
@@ -12,6 +14,4 @@ jobs:
               run: echo "Avanish"
 
             - name: Echo Time 
-              env:
-                TZ: 'Asia/Kolkata'
               run: echo "Current time in IST $(date)" 
