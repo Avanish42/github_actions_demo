@@ -14,4 +14,4 @@ jobs :
             - name : Echo Time 
               env:
                 TZ : 'Asia/Kolkata'
-              run : echo "Current time in IST $(time)" 
+              run : echo "Current time in IST $(date)" 
