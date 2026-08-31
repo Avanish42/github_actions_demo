@@ -12,4 +12,6 @@ jobs :
               run : echo "Avanish"
 
             - name : Echo Time 
-              run : echo "Current time" 
+              env:
+                TZ : India/Kolkata
+              run : echo "Current time $(time)" 
