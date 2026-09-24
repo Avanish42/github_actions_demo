@@ -1,0 +1,27 @@
+# ## Ex 1.4 — Traps se bacho
+
+# `tricky.yml` banao. Ye saari values **string** ke roop me aani chahiye:
+
+# | Key | Value |
+# |---|---|
+# | `country` | NO |
+# | `version` | 3.10 |
+# | `port_code` | 0755 |
+# | `meeting` | 12:30 |
+# | `answer` | yes |
+# | `sha` | 1e10 |
+
+country: "NO"
+country1: NO
+version: "3.10"
+version1: 3.10
+port_code: "0755"
+port_code1: 0755
+meeting: '12:30'
+meeting1: 12:30
+answer: 'yes'
+answer1: yes
+sha: '''1e10'''
+sha1: 1e10
+
+

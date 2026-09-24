@@ -1,0 +1,215 @@
+# Broadview AWS Databricks Asset Bundle CI/CD pipeline.
+# Pull requests validate only. Pushes to each promotion branch validate, deploy,
+# and run the post-deployment verification sequence for its mapped target.
+
+trigger:
+  branches:
+    include:
+      - main
+      - release/test
+      - release/prod
+
+pr:
+  branches:
+    include:
+      - main
+      - release/test
+      - release/prod
+
+
+parameters:
+  - name: promotionTargets
+    displayName: Broadview promotion targets
+    type: object
+    default:
+      - target: DEV
+        displayName: Development
+        branch: refs/heads/main
+        variableGroup: bv-data-pipeline-dev
+        environment: Broadview-Databricks-DEV
+        agentPool: private-terraform-dev
+      - target: TEST
+        displayName: Test
+        branch: refs/heads/release/test
+        variableGroup: bv-data-pipeline-test
+        environment: Broadview-Databricks-TEST
+        agentPool: private-terraform-test
+      - target: PROD
+        displayName: Production
+        branch: refs/heads/release/prod
+        variableGroup: bv-data-pipeline-prod
+        environment: Broadview-Databricks-PROD
+        agentPool: private-terraform-prod
+
+variables:
+  - name: DATABRICKS_BUNDLE_ENGINE
+    value: direct
+  - name: VENV_DIR
+    value: $(Pipeline.Workspace)/.venv
+  - name: SetupScript
+    value: |
+      set -euo pipefail
+      python3 -m venv "$VENV_DIR"
+      source "$VENV_DIR/bin/activate"
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      pip install -e . pytest
+      python tools/build_wheel.py
+      LATEST_URL=$(curl -fsSL https://api.github.com/repos/databricks/cli/releases/latest | jq -r '.assets[] | select(.name | test("linux_amd64\\.zip$")) | .browser_download_url')
+      curl -fsSL "$LATEST_URL" -o /tmp/databricks-cli.zip
+      unzip -o /tmp/databricks-cli.zip -d "$VENV_DIR/bin"
+      rm -f /tmp/databricks-cli.zip
+      databricks version
+  - name: CleanupScript
+    value: |
+      set -euo pipefail
+      deactivate 2>/dev/null || true
+      rm -rf "$VENV_DIR" dist build .pytest_cache
+      find . -maxdepth 1 -name "*.egg-info" -type d -exec rm -rf {} +
+
+stages:
+  - stage: Unit_Test
+    displayName: Unit tests and wheel build
+    jobs:
+      - job: Unit_Test
+        displayName: Unit tests and wheel build
+        pool:
+          name: private-terraform-dev
+        steps:
+          - checkout: self
+            clean: true
+          - bash: |
+              set -euo pipefail
+              cleanup() {
+                $(CleanupScript)
+              }
+              trap cleanup EXIT
+
+              $(SetupScript)
+              pytest
+              python tools/build_wheel.py
+            displayName: Run unit tests and build wheel
+
+  - ${{ each promotion in parameters.promotionTargets }}:
+      - stage: Validate_${{ promotion.target }}
+        displayName: Validate ${{ promotion.displayName }} bundle
+        dependsOn: Unit_Test
+        condition: |
+          and(
+            succeeded(),
+            or(
+              eq(variables['Build.SourceBranch'], '${{ promotion.branch }}'),
+              and(
+                eq(variables['Build.Reason'], 'PullRequest'),
+                eq(variables['System.PullRequest.TargetBranch'], '${{ promotion.branch }}')
+              )
+            )
+          )
+        variables:
+          - group: ${{ promotion.variableGroup }}
+        jobs:
+          - job: Validate_${{ promotion.target }}
+            displayName: Validate ${{ promotion.target }}
+            pool:
+              name: ${{ promotion.agentPool }}
+            steps:
+              - checkout: self
+                clean: true
+              - bash: |
+                  set -euo pipefail
+                  cleanup() {
+                    $(CleanupScript)
+                  }
+                  trap cleanup EXIT
+
+                  $(SetupScript)
+                  databricks current-user me -t "${{ promotion.target }}"
+                  databricks bundle validate -t "${{ promotion.target }}"
+                displayName: Validate bundle target ${{ promotion.target }}
+                env:
+                  DATABRICKS_AUTH_TYPE: azure-devops-oidc
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                  DATABRICKS_BUNDLE_ENGINE: $(DATABRICKS_BUNDLE_ENGINE)
+                  DATABRICKS_HOST: $(DATABRICKS_HOST)
+                  DATABRICKS_CLIENT_ID: $(DATABRICKS_CLIENT_ID)
+
+      - stage: Deploy_${{ promotion.target }}
+        displayName: Deploy ${{ promotion.displayName }} bundle
+        dependsOn: Validate_${{ promotion.target }}
+        condition: |
+          and(
+            succeeded(),
+            ne(variables['Build.Reason'], 'PullRequest'),
+            eq(variables['Build.SourceBranch'], '${{ promotion.branch }}')
+          )
+        variables:
+          - group: ${{ promotion.variableGroup }}
+        jobs:
+          - deployment: Deploy_${{ promotion.target }}
+            displayName: Deploy ${{ promotion.target }}
+            pool:
+              name: ${{ promotion.agentPool }}
+            environment: ${{ promotion.environment }}
+            strategy:
+              runOnce:
+                deploy:
+                  steps:
+                    - checkout: self
+                      clean: true
+                    - bash: |
+                        set -euo pipefail
+                        cleanup() {
+                          $(CleanupScript)
+                        }
+                        trap cleanup EXIT
+
+                        $(SetupScript)
+                        databricks current-user me -t "${{ promotion.target }}"
+                        databricks bundle deploy -t "${{ promotion.target }}"
+                      displayName: Deploy bundle target ${{ promotion.target }}
+                      env:
+                        DATABRICKS_AUTH_TYPE: azure-devops-oidc
+                        SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                        DATABRICKS_BUNDLE_ENGINE: $(DATABRICKS_BUNDLE_ENGINE)
+                        DATABRICKS_HOST: $(DATABRICKS_HOST)
+                        DATABRICKS_CLIENT_ID: $(DATABRICKS_CLIENT_ID)
+
+      - stage: Verify_${{ promotion.target }}
+        displayName: Verify ${{ promotion.displayName }} deployment
+        dependsOn: Deploy_${{ promotion.target }}
+        condition: |
+          and(
+            succeeded(),
+            ne(variables['Build.Reason'], 'PullRequest'),
+            eq(variables['Build.SourceBranch'], '${{ promotion.branch }}')
+          )
+        variables:
+          - group: ${{ promotion.variableGroup }}
+        jobs:
+          - job: Verify_${{ promotion.target }}
+            displayName: Verify ${{ promotion.target }}
+            pool:
+              name: ${{ promotion.agentPool }}
+            steps:
+              - checkout: self
+                clean: true
+              - bash: |
+                  set -euo pipefail
+                  cleanup() {
+                    $(CleanupScript)
+                  }
+                  trap cleanup EXIT
+
+                  $(SetupScript)
+                  databricks current-user me -t "${{ promotion.target }}"
+                  databricks bundle run bootstrap -t "${{ promotion.target }}"
+                  databricks bundle run sql_deployment -t "${{ promotion.target }}"
+                  databricks bundle run config_deploy -t "${{ promotion.target }}"
+                  databricks bundle summary -t "${{ promotion.target }}"
+                displayName: Run post-deployment verification for ${{ promotion.target }}
+                env:
+                  DATABRICKS_AUTH_TYPE: azure-devops-oidc
+                  SYSTEM_ACCESSTOKEN: $(System.AccessToken)
+                  DATABRICKS_BUNDLE_ENGINE: $(DATABRICKS_BUNDLE_ENGINE)
+                  DATABRICKS_HOST: $(DATABRICKS_HOST)
+                  DATABRICKS_CLIENT_ID: $(DATABRICKS_CLIENT_ID)

@@ -1,0 +1,36 @@
+# ## Ex 1.2 — Nested list of maps
+
+# `team.yml` banao — 3 log, har ek ke paas:
+
+# - `name`
+# - `role`
+# - `skills` (list)
+# - `active` (boolean)
+
+# Ek naam **flow style** me list likho (`[a, b, c]`), baaki block style me.
+
+# **Check:** Top level ek list honi chahiye, dict nahi.
+
+
+- name: Avanish
+  role: Developer
+  skill:
+    - Code
+    - code2
+    - code3
+  active: false
+
+
+- name: Avanish
+  role: Developer
+  skill:
+    - Code
+    - code2
+    - code3
+  active: false
+
+
+
+
+
+

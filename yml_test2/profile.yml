@@ -1,0 +1,23 @@
+# Banao `profile.yml`. Isme ho:
+
+# - `name` (string)
+# - `experience_years` (number)
+# - `is_remote` (boolean)
+# - `manager` (null)
+# - `skills` (list of 4 strings)
+# - `location` — nested map jisme `city` aur `country`
+
+
+name: 'avanish'
+experience_years: 10
+is_remote: true
+manager: null 
+skill: ['Java', 'PHP', 'SQL', 'API']
+language: 
+  - Python
+  - SQL 
+  - JS 
+  - Rust
+location:
+  - city: Noida
+  - country : Inida
