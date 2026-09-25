@@ -3,5 +3,6 @@ reports/
 yml_checker/
 venv/
 .env
+selenium-caller-reference.yml
 __pycache__/
 .pytest_cache/
