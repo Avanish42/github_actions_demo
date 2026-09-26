@@ -1,34 +1,19 @@
-name: First Workflow
+name : Test Workflow
 
-on: 
-    workflow_dispatch 
-
-
-
+on:
+    workflow_dispatch
+   
 env:
-    TZ: "Asia/Kolkata"
-
+    TZ: 'Asia/Kolkata'
 
 jobs:
-    job1:
-        runs-on: ubuntu-latest
-
+    J1:
+        runs-on: ubuntu_latest
         steps:
-            - name: Echo Name
-              run : echo "Avanish"
+            - name: Echo name
+              run: Echo "Avnaish" 
 
-            - name: Echo Date
-              run: echo $(date)
-
-    job2:
-        runs-on: ubuntu-latest
-        
-        steps:
             - name : Echo Test
-              run: echo "Job2"
-            - name: Echo Job2 Date
-              run: echo $(date)
+              run : Echo $(date)
 
-      
     
-
