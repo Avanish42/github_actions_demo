@@ -24,12 +24,27 @@ on:
 env:
     TZ: 'Asia/Kolkata'
 
+
+
 jobs:
+    Job_details:
+        runs-on: ubuntu-latest
+        steps:
+            - name : Os Details 
+              run: uname -a
+            - name: PWD
+              run: pwd
+
+            - name: Job Run Evenet
+              run : echo " Workflow run by ${{github.event_name}}"
+
+
+
     J1:
         runs-on: ubuntu-latest 
         steps:
             - name: echo name
-              run: echo "Avnaish" 
+              run: echo "  ${{github.event.inputs.gretting}} Name Is  ${{github.event.inputs.your_name}}" 
 
             - name : Echo Test
               run : echo $(date)
