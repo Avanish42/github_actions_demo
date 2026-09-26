@@ -1,7 +1,25 @@
 name : Test Workflow
 
 on:
-    workflow_dispatch
+    workflow_dispatch:
+        inputs:
+            your_name:
+                description: Type your name here
+                required: true
+                default: Avanish
+                type: string
+            gretting:
+                description: Select Greeting
+                required: true
+                default: Hello
+                type: choice
+                options :
+                    - Hello
+                    - Hi
+                    - Tata
+                    - bye
+                    
+
    
 env:
     TZ: 'Asia/Kolkata'
