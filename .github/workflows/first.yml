@@ -10,10 +10,10 @@ jobs:
     J1:
         runs-on: ubuntu-latest 
         steps:
-            - name: Echo name
-              run: Echo "Avnaish" 
+            - name: echo name
+              run: echo "Avnaish" 
 
             - name : Echo Test
-              run : Echo $(date)
+              run : echo $(date)
 
     
