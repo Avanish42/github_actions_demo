@@ -8,7 +8,7 @@ env:
 
 jobs:
     J1:
-        runs-on: ubuntu_latest
+        runs-on: ubuntu-latest 
         steps:
             - name: Echo name
               run: Echo "Avnaish" 
