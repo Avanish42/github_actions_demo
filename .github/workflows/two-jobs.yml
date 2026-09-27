@@ -1,0 +1,49 @@
+# ---
+
+# ## Ex 3.4 — Do jobs, dependency
+
+# `.github/workflows/two-jobs.yml`
+
+# - Job `build` — ek output `version` set kare (`$GITHUB_OUTPUT` me)
+# - Job `deploy` — `needs: build`, us version ko print kare
+# - `deploy` sirf `main` branch pe chale (`if:`)
+
+# **Goal:** Actions tab me dono jobs sequential dikhein, arrow ke saath.
+
+# ---
+
+
+
+name : Two jobs 
+
+
+on: 
+    workflow_dispatch:
+
+jobs:
+   jobs:
+        build:
+            runs-on: ubuntu-latest
+            outputs:
+            version: ${{ steps.setver.outputs.version }}
+            built_at: ${{ steps.setver.outputs.built_at }}
+            steps:
+                - name: Set version
+                  id: setver
+                  run: |
+                        echo "version=1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+                        echo "built_at=$(date -u +%FT%TZ)"          >> $GITHUB_OUTPUT
+
+                - name: Confirm
+                  run: echo "Built 1.0.${{ github.run_number }}"    
+
+    deploy:
+        needs: build
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+        - name: Show version
+          run: |
+            echo "Version  : ${{ needs.build.outputs.version }}"
+            echo "Built at : ${{ needs.build.outputs.built_at }}"
+
