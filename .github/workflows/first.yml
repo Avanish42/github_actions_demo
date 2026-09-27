@@ -18,6 +18,16 @@ on:
                     - Hi
                     - Tata
                     - bye
+
+    push:
+        branches: ['main','dev']
+        paths-ignore : 
+            - '**/*.md'
+
+    schedule:
+        - cron: '30 4 * * *'    
+
+
                     
 
    
