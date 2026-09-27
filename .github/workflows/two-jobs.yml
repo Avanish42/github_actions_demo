@@ -19,23 +19,22 @@ name : Two jobs
 
 on: 
     workflow_dispatch:
-
+        
 jobs:
-   jobs:
-        build:
-            runs-on: ubuntu-latest
-            outputs:
+    build:
+        runs-on: ubuntu-latest
+        outputs:
             version: ${{ steps.setver.outputs.version }}
             built_at: ${{ steps.setver.outputs.built_at }}
-            steps:
-                - name: Set version
-                  id: setver
-                  run: |
-                        echo "version=1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
-                        echo "built_at=$(date -u +%FT%TZ)"          >> $GITHUB_OUTPUT
+        steps:
+            - name: Set version
+              id: setver
+              run: |
+                    echo "version=1.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+                    echo "built_at=$(date -u +%FT%TZ)"          >> $GITHUB_OUTPUT
 
-                - name: Confirm
-                  run: echo "Built 1.0.${{ github.run_number }}"    
+            - name: Confirm
+              run: echo "Built 1.0.${{ github.run_number }}"    
 
     deploy:
         needs: build
